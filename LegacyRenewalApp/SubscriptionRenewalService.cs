@@ -216,5 +216,10 @@ namespace LegacyRenewalApp
 
             return invoice;
         }
+
+        void CalculateCustomerDiscount(SegmentType Segment)
+        {
+            //for line 53 add go through segmenttype and add +0.05 to discount
+        }
     }
 }
