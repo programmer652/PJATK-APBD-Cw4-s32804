@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace LegacyRenewalApp
 {
@@ -49,54 +50,57 @@ namespace LegacyRenewalApp
             decimal baseAmount = (plan.MonthlyPricePerSeat * seatCount * 12m) + plan.SetupFee;
             decimal discountAmount = 0m;
             string notes = string.Empty;
+            
+            var discountRate = customer.Segment switch
+            {
+                SegmentType.Silver => 0.05m,
+                SegmentType.Gold => 0.10m,
+                SegmentType.Platinum => 0.15m,
+                SegmentType.Education when plan.IsEducationEligible => 0.20m,
+                _ => 0m
+            };
 
-            if (customer.Segment == "Silver")
+            if (discountRate > 0)
             {
-                discountAmount += baseAmount * 0.05m;
-                notes += "silver discount; ";
+                discountAmount += baseAmount * discountRate;
+                notes += $"{customer.Segment.ToString().ToLower()} discount; ";
             }
-            else if (customer.Segment == "Gold")
-            {
-                discountAmount += baseAmount * 0.10m;
-                notes += "gold discount; ";
-            }
-            else if (customer.Segment == "Platinum")
-            {
-                discountAmount += baseAmount * 0.15m;
-                notes += "platinum discount; ";
-            }
-            else if (customer.Segment == "Education" && plan.IsEducationEligible)
-            {
-                discountAmount += baseAmount * 0.20m;
-                notes += "education discount; ";
-            }
+            
 
-            if (customer.YearsWithCompany >= 5)
+            // --- Loyalty Discount ---
+            var loyaltyDiscountRate = customer.YearsWithCompany switch
             {
-                discountAmount += baseAmount * 0.07m;
-                notes += "long-term loyalty discount; ";
-            }
-            else if (customer.YearsWithCompany >= 2)
+                >= 5 => 0.07m,
+                >= 2 => 0.03m,
+                _ => 0m
+            };
+
+            if (loyaltyDiscountRate > 0)
             {
-                discountAmount += baseAmount * 0.03m;
-                notes += "basic loyalty discount; ";
+                discountAmount += baseAmount * loyaltyDiscountRate;
+                notes += loyaltyDiscountRate == 0.07m ? "long-term loyalty discount; " : "basic loyalty discount; ";
             }
 
-            if (seatCount >= 50)
+            // --- Team Size Discount ---
+            var teamDiscountRate = seatCount switch
             {
-                discountAmount += baseAmount * 0.12m;
-                notes += "large team discount; ";
-            }
-            else if (seatCount >= 20)
+                >= 50 => 0.12m,
+                >= 20 => 0.08m,
+                >= 10 => 0.04m,
+                _ => 0m
+            };
+
+            if (teamDiscountRate > 0)
             {
-                discountAmount += baseAmount * 0.08m;
-                notes += "medium team discount; ";
-            }
-            else if (seatCount >= 10)
-            {
-                discountAmount += baseAmount * 0.04m;
-                notes += "small team discount; ";
-            }
+                discountAmount += baseAmount * teamDiscountRate;
+                notes += teamDiscountRate switch
+                {
+                    0.12m => "large team discount; ",
+                    0.08m => "medium team discount; ",
+                    0.04m => "small team discount; ",
+                    _ => ""
+                };
+            } 
 
             if (useLoyaltyPoints && customer.LoyaltyPoints > 0)
             {
@@ -216,10 +220,6 @@ namespace LegacyRenewalApp
 
             return invoice;
         }
-
-        void CalculateCustomerDiscount(SegmentType Segment)
-        {
-            //for line 53 add go through segmenttype and add +0.05 to discount
-        }
+        
     }
 }
