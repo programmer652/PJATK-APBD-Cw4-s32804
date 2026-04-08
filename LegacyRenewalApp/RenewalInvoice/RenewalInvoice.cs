@@ -6,8 +6,8 @@ namespace LegacyRenewalApp
     {
         public string InvoiceNumber { get; set; } = string.Empty;
         public string CustomerName { get; set; } = string.Empty;
-        public string PlanCode { get; set; } = string.Empty;
-        public string PaymentMethod { get; set; } = string.Empty;
+        public PlanCode PlanCode { get; set; }
+        public PaymentMethod PaymentMethod { get; set; }
         public int SeatCount { get; set; }
         public decimal BaseAmount { get; set; }
         public decimal DiscountAmount { get; set; }

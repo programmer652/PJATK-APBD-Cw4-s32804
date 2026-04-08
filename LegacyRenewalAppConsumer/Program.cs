@@ -10,8 +10,8 @@ namespace LegacyRenewalAppConsumer
             /*
              * DO NOT CHANGE THIS FILE AT ALL
              */
-
-            var renewalService = new SubscriptionRenewalService();
+            
+            var renewalService = new SubscriptionRenewalService(new CustomerRepository(), new SubscriptionPlanRepository());
 
             var invoice = renewalService.CreateRenewalInvoice(
                 customerId: 3,
