@@ -2,9 +2,9 @@ namespace LegacyRenewalApp;
 
 public class Discount
 {
-    private SubscriptionPlan plan;
-    private Customer customer;
-    private int seatCount;
+    private SubscriptionPlan _plan;
+    private Customer _customer;
+    private int _seatCount;
     
     public decimal amount { get; set; } = 0m;
     public decimal baseAmount { get; set; } = 0m;
@@ -14,33 +14,33 @@ public class Discount
     public decimal subtotal { get; set; } = 0m;
     public Discount(SubscriptionPlan  plan, Customer customer, int seatCount )
     {
-        this.seatCount = seatCount;
-        this.plan = plan;
-        this.customer = customer;
+        _seatCount = seatCount;
+        _plan = plan;
+        _customer = customer;
         baseAmount = (plan.MonthlyPricePerSeat * seatCount * 12m) + plan.SetupFee;
     }
     
     public string SegmentDiscount()
     {
-        var discountRate = customer.Segment switch
+        var discountRate = _customer.Segment switch
         {
             SegmentType.Silver => 0.05m,
             SegmentType.Gold => 0.10m,
             SegmentType.Platinum => 0.15m,
-            SegmentType.Education when plan.IsEducationEligible => 0.20m,
+            SegmentType.Education when _plan.IsEducationEligible => 0.20m,
             _ => 0m
         };
         if (discountRate > 0m) 
         {
             amount += baseAmount * discountRate;
-            return $"{customer.Segment.ToString().ToLower()} discount; ";
+            return $"{_customer.Segment.ToString().ToLower()} discount; ";
         }
         return "";
     }
 
     public string LoyaltyDiscount()
     {
-        loyaltyDiscountRate = customer.YearsWithCompany switch
+        loyaltyDiscountRate = _customer.YearsWithCompany switch
         {
             >= 5 => 0.07m,
             >= 2 => 0.03m,
@@ -56,7 +56,7 @@ public class Discount
 
     public string TeamSizeDiscount()
     {
-        teamDiscountRate = seatCount switch
+        teamDiscountRate = _seatCount switch
         {
             >= 50 => 0.12m,
             >= 20 => 0.08m,
@@ -79,9 +79,9 @@ public class Discount
 
     public string UseLoyaltyPoints(bool useLoyaltyPoints)
     {
-        if (useLoyaltyPoints && customer.LoyaltyPoints > 0)
+        if (useLoyaltyPoints && _customer.LoyaltyPoints > 0)
         {
-            pointsToUse = customer.LoyaltyPoints > 200 ? 200 : customer.LoyaltyPoints;
+            pointsToUse = _customer.LoyaltyPoints > 200 ? 200 : _customer.LoyaltyPoints;
             amount += pointsToUse;
         }
         if(pointsToUse>0)

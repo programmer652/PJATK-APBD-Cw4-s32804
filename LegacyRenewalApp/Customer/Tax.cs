@@ -2,9 +2,8 @@ namespace LegacyRenewalApp;
 
 public class Tax
 {
-    private Customer customer;
-    private Discount discount;
-    private Fee fee;
+    private Customer _customer;
+
     public decimal taxRate { get; set; } = 0m;
     public decimal taxBase { get; set; } = 0m;
     public decimal taxAmount { get; set; } = 0m;
@@ -12,15 +11,13 @@ public class Tax
 
     public Tax(Customer customer, Discount discount, Fee fee)
     {
-        this.customer = customer;
-        this.discount = discount;
-        this.fee = fee;
+        _customer = customer;
         taxBase = discount.subtotal + fee.supportFee + fee.paymentFee;
     }
 
     public void CalculateTaxRate()
     {
-        decimal taxRate = customer.Country switch
+        taxRate = _customer.Country switch
         {
             "Poland" => 0.23m,
             "Germany" => 0.19m,
@@ -32,8 +29,8 @@ public class Tax
 
     public string CalculateFinalAmount()
     {
-        decimal taxAmount = taxBase * taxRate;
-        decimal finalAmount = taxBase + taxAmount;
+        taxAmount = taxBase * taxRate;
+        finalAmount = taxBase + taxAmount;
         if (finalAmount < 500m)
         {
             finalAmount = 500m;

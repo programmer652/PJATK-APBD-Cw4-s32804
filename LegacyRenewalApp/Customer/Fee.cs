@@ -12,8 +12,8 @@ public class Fee
     
     public Fee(SubscriptionPlan plan, PaymentMethod pMethod)
     {
-        this._plan = plan;
-        this._pMethod = pMethod;
+        _plan = plan;
+        _pMethod = pMethod;
     }
     
     public string CalculateSupportFee(bool includePremiumSupport)
