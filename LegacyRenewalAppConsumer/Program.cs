@@ -1,5 +1,6 @@
 using System;
 using LegacyRenewalApp;
+using LegacyRenewalApp.Service;
 
 namespace LegacyRenewalAppConsumer
 {
@@ -11,7 +12,7 @@ namespace LegacyRenewalAppConsumer
              * DO NOT CHANGE THIS FILE AT ALL
              */
             
-            var renewalService = new SubscriptionRenewalService(new CustomerRepository(), new SubscriptionPlanRepository());
+            var renewalService = new SubscriptionRenewalService(new CustomerRepository(), new SubscriptionPlanRepository(), new LegacyBillingGatewayAdapter());
 
             var invoice = renewalService.CreateRenewalInvoice(
                 customerId: 3,

@@ -20,7 +20,7 @@ public class Discount
         baseAmount = (plan.MonthlyPricePerSeat * seatCount * 12m) + plan.SetupFee;
     }
     
-    public bool SegmentDiscount()
+    public string SegmentDiscount()
     {
         var discountRate = customer.Segment switch
         {
@@ -30,11 +30,15 @@ public class Discount
             SegmentType.Education when plan.IsEducationEligible => 0.20m,
             _ => 0m
         };
-        if (discountRate > 0m) amount += baseAmount * discountRate;
-        return discountRate > 0m;
+        if (discountRate > 0m) 
+        {
+            amount += baseAmount * discountRate;
+            return $"{customer.Segment.ToString().ToLower()} discount; ";
+        }
+        return "";
     }
 
-    public bool LoyaltyDiscount()
+    public string LoyaltyDiscount()
     {
         loyaltyDiscountRate = customer.YearsWithCompany switch
         {
@@ -42,11 +46,15 @@ public class Discount
             >= 2 => 0.03m,
             _ => 0m
         };
-        if (loyaltyDiscountRate > 0m)  amount += baseAmount * loyaltyDiscountRate;
-        return loyaltyDiscountRate > 0m;
+        if (loyaltyDiscountRate > 0m)
+        {
+            amount += baseAmount * loyaltyDiscountRate;
+            return loyaltyDiscountRate == 0.07m ? "long-term loyalty discount; " : "basic loyalty discount; ";
+        }
+        return "";
     }
 
-    public bool TeamSizeDiscount()
+    public string TeamSizeDiscount()
     {
         teamDiscountRate = seatCount switch
         {
@@ -55,25 +63,39 @@ public class Discount
             >= 10 => 0.04m,
             _ => 0m
         };
-        if(teamDiscountRate>0) amount += baseAmount * teamDiscountRate;
-        return teamDiscountRate > 0m;
+        if (teamDiscountRate > 0m)
+        {
+            amount += baseAmount * teamDiscountRate;
+            return teamDiscountRate switch
+            {
+                0.12m => "large team discount; ",
+                0.08m => "medium team discount; ",
+                0.04m => "small team discount; ",
+                _ => ""
+            };
+        }
+        return "";
     }
 
-    public bool UseLoyaltyPoints(bool useLoyaltyPoints)
+    public string UseLoyaltyPoints(bool useLoyaltyPoints)
     {
         if (useLoyaltyPoints && customer.LoyaltyPoints > 0)
         {
             pointsToUse = customer.LoyaltyPoints > 200 ? 200 : customer.LoyaltyPoints;
             amount += pointsToUse;
         }
-        return pointsToUse>0;
+        if(pointsToUse>0)
+            return $"loyalty points used: {pointsToUse}; ";
+        return "";
     }
 
-    public bool SubtotalAfter()
+    public string SubtotalAfter()
     {
         subtotal = baseAmount - amount;
         if (subtotal < 300m)
             subtotal = 300m;
-        return baseAmount - amount < 300m;
+        if(baseAmount - amount < 300m)
+            return "minimum discounted subtotal applied; ";
+        return "";
     }
 }
